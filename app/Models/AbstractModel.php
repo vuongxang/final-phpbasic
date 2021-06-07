@@ -33,6 +33,19 @@ abstract class AbstractModel
         return $list;
     }
 
+    public static function paginator()
+    {
+        $list = [];
+        $db = self::getInstance();
+        $req = $db->query("SELECT * FROM " . static::$table." LIMIT 5,9");
+
+        foreach ($req->fetchAll() as $item) {
+            $list[] = new static($item);
+        }
+
+        return $list;
+    }
+
     public static function delete($id){
         $db = self::getInstance();
         $req = $db->prepare("DELETE FROM " . static::$table . " WHERE id = :id");

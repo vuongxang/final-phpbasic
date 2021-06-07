@@ -60,7 +60,7 @@ class Product extends AbstractModel
     }
 
 
-    public function create()
+    public function save()
     {
         $db = self::getInstance();
         $req = $db->prepare("INSERT INTO " . static::$table . "(name,image,description,price) VALUES (:name,:image,:description,:price)");

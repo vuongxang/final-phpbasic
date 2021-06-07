@@ -50,6 +50,46 @@ class ProductController extends BaseController
         
         $image = "./public/images/" . $image;
 
+        $error = [];
+        $pro = Product::where("name","=",$name)[0];
+        if(isset($pro)) {
+            $error['name_error'] = "Product name already exist";
+        }
+        if(empty($price)) {
+            $error['price_error'] = "Price is required";
+        }
+        if(empty($image)){
+            $error['image_error'] = "Image is required";
+        }
+        if(empty($cate_id)){
+            $error['cate_id'] = "Category is not checked";
+        }
+        if(empty($color_id)){
+            $error['$color_id'] = "Color is not checked";
+        }
+
+        if($error){
+            $products = Product::all();
+            $categories = Category::all();
+            $colors = Color::all();
+            $title = "PRODUCT LIST";
+            $this->folder = 'page';
+
+            if(isset($_GET['cate_id'])){
+                $cate_id = $_GET['cate_id'];
+                $products = Product::findProductByCateId($cate_id);
+                $title = Category::getById($cate_id)->getName();
+            }
+
+            $this->render('home',[
+                'products'=> $products,
+                'categories'=>$categories,
+                'colors'=>$colors,
+                'title'=>$title,
+                'error'=>$error,
+            ]);
+            die;
+        }
         $model = new Product([
             'id'=>null,
             'name'=>$name,
@@ -59,7 +99,7 @@ class ProductController extends BaseController
         ]);
 
         if($model){
-            $model->create();
+            $model->save();
         }
 
         //Luu danh sach category pro_cate

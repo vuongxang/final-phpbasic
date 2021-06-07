@@ -13,6 +13,12 @@ class PageController extends BaseController
     public function home()
     {
 
+        $products = Product::paginator();
+        echo "<pre>";
+        var_dump($products); 
+        echo "</pre>";
+        die;
+
         $products = Product::all();
         $categories = Category::all();
         $colors = Color::all();

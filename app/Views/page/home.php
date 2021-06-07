@@ -68,6 +68,18 @@
     </div>
     <!--End carosel-->
     <div class="container">
+        <?php if (isset($error)) : ?>
+            <div class="alert alert-danger container text-center" role="alert">
+                    Add Product failed!
+                <ul>
+                    <?php foreach($error as $item): ?>
+                        <li class="" role="alert">
+                            <?= $item ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
         <?php if (isset($_GET['message'])) : ?>
             <div class="alert alert-success container text-center" role="alert">
                 <?= $_GET['message'] ?>
@@ -174,23 +186,27 @@
                     <div class="modal-body">
                         <form method="POST" id="add-form" enctype="multipart/form-data" action="?scope=product&action=store">
                             <div class="form-group">
-                                <label for="pro-name" class="col-form-label">Product Name</label>
-                                <input type="text" class="form-control" id="pro-name" name="name">
+                                <label for="name" class="col-form-label">Product Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                                <span class="text-danger" id="nameError"></span>
                             </div>
                             <div class="form-group">
                                 <label for="image" class="col-form-label">image</label>
-                                <input type="file" id="image" name="image" class="form-control">
+                                <input type="file" id="image" name="image" class="form-control" required>
+                                <span class="text-danger" id="imageError"></span>
                             </div>
                             <div class="form-group">
                                 <label for="price" class="col-form-label">Price</label>
-                                <input type="number" class="form-control" id="price" name="price">
+                                <input type="text" class="form-control" id="price" name="price" required>
+                                <span class="text-danger" id="priceError"></span>
                             </div>
                             <div class="form-group">
                                 <label for="description" class="col-form-label">Description</label>
-                                <textarea class="form-control" id="description" name="description"></textarea>
+                                <textarea class="form-control" id="description" name="description" required></textarea>
+                                <span class="text-danger" id="descriptionError"></span>
                             </div>
                             <div class="form-group">
-                                <label for="description" class="col-form-label">Category:</label>
+                                <label class="col-form-label">Category:</label>
                                 <br>
                                 <?php foreach ($categories as $cate) : ?>
                                     <label for=""><?= $cate->getName() ?></label>
@@ -198,7 +214,7 @@
                                 <?php endforeach; ?>
                             </div>
                             <div class="form-group">
-                                <label for="description" class="col-form-label">Color:</label>
+                                <label class="col-form-label">Color:</label>
                                 <br>
                                 <?php foreach ($colors as $color) : ?>
                                     <label for="" style="background-color: <?= $color->getName() ?>"><?= $color->getName() ?></label>
@@ -221,90 +237,8 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        $( document ).ready(function() {
-            let proList = [];
-        $('#keyword').keyup(function() {
-            let keyword = $(this).val();
-            
-            $.ajax({
-                url: '?scope=page&action=searchProduct',
-                method: "post",
-                data: {
-                    keyword: keyword
-                },
-                dataType: 'json',
-                success: function(res) {
-                    proList = res;
-
-                    const results = proList.map((item) => {
-                        return `
-                            <div class="col-sm-12 col-md-6 col-lg-4 text-center">
-                                <div class="card border-0">
-                                    <a href="?scope=product&action=view&id=${item.id}">
-                                        <img src="${item.image}" class="card-img-top" alt="...">
-                                    </a>
-                                <div class="card-body">
-                                    <a href="?scope=product&action=view&id=${item.id}">
-                                        <h5 class="card-title">${item.name}</h5>
-                                    </a>
-                                    <p class="card-text">Price: ${item.price}$</p>
-                                    <a href="?scope=product&action=view&id=${item.id}" class="btn btn-dark rounded-pill shadow mb-5">DETAIL</a>
-                                </div>
-                                </div>
-                            </div>
-                        `
-                    }).join("");
-                    $('#product').empty();
-                    $('#product').append(results);
-                }
-            })
-        })
-
-        let colors=[];
-        $('#myform :checkbox').change(function() {
-            if (this.checked) {
-                colors.push($(this).val())
-            } else {
-                colors = colors.filter(color => color !== $(this).val() )
-            }
-
-            $.ajax({
-                url: '?scope=page&action=filterByColor',
-                method: "post",
-                data: {
-                    colors: colors
-                },
-                dataType: 'json',
-                success: function(res) {
-                    console.log(res);
-                    proList = res;
-
-                    const results = proList.map((item) => {
-                        return `
-                            <div class="col-sm-12 col-md-6 col-lg-4 text-center">
-                                <div class="card border-0">
-                                    <a href="?scope=product&action=view&id=${item.id}">
-                                        <img src="${item.image}" class="card-img-top" alt="...">
-                                    </a>
-                                <div class="card-body">
-                                    <a href="?scope=product&action=view&id=${item.id}">
-                                        <h5 class="card-title">${item.name}</h5>
-                                    </a>
-                                    <p class="card-text">Price: ${item.price}$</p>
-                                    <a href="?scope=product&action=view&id=${item.id}" class="btn btn-dark rounded-pill shadow mb-5">DETAIL</a>
-                                </div>
-                                </div>
-                            </div>
-                        `
-                    }).join("");
-                    $('#product').empty();
-                    $('#product').append(results);
-                }
-            })
-        });
-    });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="./public/js/main.js"></script>
 </body>
 
 </html>
