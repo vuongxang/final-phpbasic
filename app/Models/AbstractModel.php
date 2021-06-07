@@ -42,10 +42,12 @@ abstract class AbstractModel
     public static function where($fillname,$comp,$val){
         $list =[];
         $db = self::getInstance();
-        $req = $db->prepare("SELECT * FROM " . static::$table. " WHERE ".$fillname." ".$comp." ".$val);
+        $req = $db->prepare("SELECT * FROM " . static::$table. " WHERE ".$fillname." ".$comp." '$val'");
+        // var_dump($req); die;
         $req->execute();
-
-        $list = $req->fetchAll();
+        foreach ($req->fetchAll() as $item) {
+            $list[] = new static($item);
+        }
 
         return $list;
     }
@@ -63,6 +65,19 @@ abstract class AbstractModel
         }
 
         return null;
+    }
+
+    public static function search($keyword = "pro")
+    {
+        $list = [];
+        $db = self::getInstance();
+        $req = $db->prepare("SELECT * FROM " . static::$table. " WHERE name LIKE '%$keyword%'");
+        
+        $req->execute();
+        foreach ($req->fetchAll() as $item) {
+            $list[] = new static($item);
+        }
+        return $list;
     }
 
 

@@ -5,8 +5,8 @@ namespace Mvc\Models;
 class Product extends AbstractModel
 {
     protected static $table = 'products';
-    private $id;
-    private $name;
+    public $id;
+    public $name;
     public $description;
     public $image;
     public $price;
@@ -63,7 +63,7 @@ class Product extends AbstractModel
     public function create()
     {
         $db = self::getInstance();
-        $req = $db->prepare("INSERT INTO " . static::$table . "(name,image,description) VALUES (:name,:image,:description)");
+        $req = $db->prepare("INSERT INTO " . static::$table . "(name,image,description,price) VALUES (:name,:image,:description,:price)");
         $req->execute([
             'name' => $this->name,
             'image' => $this->image,
@@ -71,4 +71,35 @@ class Product extends AbstractModel
             'description' => $this->description
         ]);
     }
+
+    public static function findProductByCateId($cate_id){
+        $list =[];
+        $db = self::getInstance();
+        $req = $db->prepare("SELECT * FROM products INNER JOIN pro_cate ON pro_cate.pro_id = products.id WHERE pro_cate.cate_id=$cate_id");
+        $req->execute();
+        foreach ($req->fetchAll() as $item) {
+            $list[] = new static($item);
+        }
+
+        return $list;
+    }
+
+    public static function filterByColor($colors){
+        $list =[];
+        $db = self::getInstance();
+        $sql = "SELECT * FROM products INNER JOIN pro_color ON products.id = pro_color.pro_id WHERE pro_color.color_id IN (";
+        foreach($colors as $color_id){
+            $sql.=$color_id.",";
+        }
+        $sql.="0)";
+        // var_dump($sql); die;
+        $req = $db->prepare($sql);
+        $req->execute();
+        foreach ($req->fetchAll() as $item) {
+            $list[] = new static($item);
+        }
+
+        return $list;
+    }
+
 }

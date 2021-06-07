@@ -4,6 +4,7 @@ namespace Mvc\Controllers;
 use Mvc\Models\Product;
 use Mvc\Models\Category;
 use Mvc\Models\Color;
+use Mvc\Models\ProCate;
 
 class PageController extends BaseController
 {
@@ -11,16 +12,23 @@ class PageController extends BaseController
 
     public function home()
     {
+
         $products = Product::all();
         $categories = Category::all();
         $colors = Color::all();
-        $cate = Category::where('parent','=',0);
+        $title = "PRODUCT LIST";
 
+        if(isset($_GET['cate_id'])){
+            $cate_id = $_GET['cate_id'];
+            $products = Product::findProductByCateId($cate_id);
+            $title = Category::getById($cate_id)->getName();
+        }
 
         $this->render('home',[
             'products'=> $products,
             'categories'=>$categories,
             'colors'=>$colors,
+            'title'=>$title
         ]);
     }
 
@@ -41,5 +49,19 @@ class PageController extends BaseController
     }
     public function demo(){
         echo  "page demo";
+    }
+    public function searchProduct(){
+        $keyword = $_POST['keyword'];
+
+        $products = Product::search($keyword);
+        echo json_encode($products);
+        die;
+    }
+
+    public function filterByColor(){
+        $colors = $_POST['colors'];
+        $products = Product::filterByColor($colors);
+        echo json_encode($products);
+        die;
     }
 }

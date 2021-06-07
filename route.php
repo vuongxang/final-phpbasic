@@ -10,8 +10,8 @@ $id = isset($_REQUEST['id'])? $_REQUEST['id'] : null;
  * Define route
  */
 $router = [
-    'product' => ['view', 'listing'],
-    'page' => ['home', 'contact','demo']
+    'product' => ['view', 'listing','store'],
+    'page' => ['home', 'contact','demo','searchProduct','filterByColor']
 ];
 
 
